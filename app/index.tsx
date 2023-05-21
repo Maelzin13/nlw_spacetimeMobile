@@ -1,5 +1,10 @@
 import { StatusBar } from 'expo-status-bar'
+import { useEffect } from 'react'
 import { ImageBackground, Text, TouchableOpacity, View } from 'react-native'
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
+import * as SecureStore from 'expo-secure-store'
+import { useRouter } from 'expo-router'
+import { styled } from 'nativewind'
 
 import {
   useFonts,
@@ -7,22 +12,66 @@ import {
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto'
 
-import blurbg from './src/assets/bg-blur.png'
-import Strips from './src/assets/stripes.svg'
-import LOGOnlw from './src/assets/nlw-spacetime.svg'
+import blurbg from '../src/assets/bg-blur.png'
+import Strips from '../src/assets/stripes.svg'
+import LOGOnlw from '../src/assets/nlw-spacetime.svg'
+import { api } from '../src/lib/api'
 
-import { styled } from 'nativewind'
-import React from 'react'
 import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
 
 const StyledStripes = styled(Strips)
 
+const discovery = {
+  authorizationEndpoint: 'https://github.com/login/oauth/authorize',
+  tokenEndpoint: 'https://github.com/login/oauth/access_token',
+  revocationEndpoint:
+    'https://github.com/settings/connections/applications/dfc791d3981215659db6 ',
+}
+
 export default function App() {
+  const router = useRouter()
+
   const [hasLoadedFontes] = useFonts({
     Roboto_700Bold,
     Roboto_400Regular,
     BaiJamjuree_700Bold,
   })
+
+  const [, response, signInWithGithub] = useAuthRequest(
+    {
+      clientId: 'dfc791d3981215659db6',
+      scopes: ['identity'],
+      redirectUri: makeRedirectUri({
+        scheme: 'spacetime',
+      }),
+    },
+    discovery,
+  )
+
+  async function handleGithubOAuthCode(code: string) {
+    const response = await api.post('/register', {
+      code,
+    })
+
+    const { token } = response.data
+
+    await SecureStore.setItemAsync('token', token)
+
+    router.push('/memories')
+  }
+
+  useEffect(() => {
+    // console.log(
+    //   makeRedirectUri({
+    //     scheme: 'spacetime',
+    //   }),
+    // )
+    if (response?.type === 'success') {
+      const { code } = response.params
+
+      handleGithubOAuthCode(code)
+    }
+  }, [response])
 
   if (!hasLoadedFontes) {
     return null
@@ -51,6 +100,7 @@ export default function App() {
         <TouchableOpacity
           activeOpacity={0.7}
           className="rounded-full bg-green-500 px-5 py-2"
+          onPress={() => signInWithGithub()}
         >
           <Text className="font-alt text-sm uppercase text-black">
             Cadastrar lembrança
