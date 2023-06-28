@@ -11,7 +11,7 @@ const discovery = {
   authorizationEndpoint: 'https://github.com/login/oauth/authorize',
   tokenEndpoint: 'https://github.com/login/oauth/access_token',
   revocationEndpoint:
-    'https://github.com/settings/connections/applications/dfc791d3981215659db6 ',
+    'https://github.com/settings/connections/applications/6c8e50dac84c03346d2a',
 }
 
 export default function App() {
@@ -19,7 +19,7 @@ export default function App() {
 
   const [, response, signInWithGithub] = useAuthRequest(
     {
-      clientId: 'dfc791d3981215659db6',
+      clientId: '6c8e50dac84c03346d2a',
       scopes: ['identity'],
       redirectUri: makeRedirectUri({
         scheme: 'spacetime',
@@ -54,7 +54,7 @@ export default function App() {
   }, [response])
 
   return (
-    <View className=" flex-1 items-center px-8">
+    <View className="flex-1 items-center px-8 py-10">
       <View className="flex-1 items-center justify-center gap-6">
         <LOGOnlw />
 
@@ -63,8 +63,8 @@ export default function App() {
             Sua cápsula do tempo
           </Text>
           <Text className="text-center font-body text-base leading-relaxed text-gray-100">
-            Celecione momentos marcantes da sua jornada e compatilhe (se quise)
-            com o mundo!
+            Colecione momentos marcantes da sua jornada e compartilhe (se
+            quiser) com o mundo!
           </Text>
         </View>
 
